@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-cart
+  labels:
+    app: rabbitmq-cart
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq-cart
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-cart
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.12-management-alpine
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "bookstore"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "bookstore123"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart
+  labels:
+    app: cart
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          image: bookstore-cart-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "docker"
+            - name: SERVER_PORT
+              value: "8081"
+            - name: DB_URL
+              value: "jdbc:mysql://mysql-db:3306/cartdb"
+            - name: DB_USER
+              value: "bookstore"
+            - name: DB_PASSWORD
+              value: "bookstore123"
+            - name: CATALOG_GRPC_HOST
+              value: "catalog-service"
+            - name: CATALOG_GRPC_PORT
+              value: "9090"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq-cart-svc"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "bookstore"
+            - name: RABBITMQ_PASS
+              value: "bookstore123"

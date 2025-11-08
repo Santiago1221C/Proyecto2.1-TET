@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-review
+  labels:
+    app: rabbitmq-review
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq-review
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-review
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.12-management-alpine
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "bookstore"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "bookstore123"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: review
+  labels:
+    app: review
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: review
+  template:
+    metadata:
+      labels:
+        app: review
+    spec:
+      containers:
+        - name: review
+          image: bookstore-review-service:latest
+          ports:
+            - containerPort: 5002
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: PORT
+              value: "5002"
+            # === MongoDB ===
+            - name: MONGO_URI
+              value: "mongodb://mongodb:mongodb123@mongodb:27017/"
+            - name: MONGO_DB
+              value: "review_db"
+            # === Comunicación con UserService ===
+            - name: USER_SERVICE_URL
+              value: "http://user-service:8083"
+            - name: JWT_SECRET
+              value: "bookstore-jwt-secret-key-change-in-production"
+            # === RabbitMQ interno ===
+            - name: RABBITMQ_HOST
+              value: "rabbitmq-review-svc"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "bookstore"
+            - name: RABBITMQ_PASS
+              value: "bookstore123"

@@ -1,0 +1,35 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:mysql://mysql-db:3306/orderdb
+    username: bookstore
+    password: bookstore123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:bookstore}
+    password: ${RABBITMQ_PASS:bookstore123}
+
+grpc:
+  client:
+    cart-service:
+      address: static://cart-service:9091
+      negotiationType: plaintext
+
+logging:
+  level:
+    root: INFO
+    com.bookstore.order_service: DEBUG

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bookstore-config
+  namespace: bookstore
+data:
+  # RabbitMQ Configuration
+  RABBITMQ_HOST: "rabbitmq-service"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: "bookstore"
+  RABBITMQ_VHOST: "/"
+  
+  # Database Configuration
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "userdb"
+  
+  MONGO_HOST: "mongodb-service"
+  MONGO_PORT: "27017"
+  
+  # Service URLs
+  USER_SERVICE_URL: "http://user-service:8080"
+  PAYMENT_SERVICE_URL: "http://payment-service:5000"
+  REVIEW_SERVICE_URL: "http://review-service:5002"
+  
+  # API Base URL
+  API_BASE_URL: "http://localhost"
+
+
+

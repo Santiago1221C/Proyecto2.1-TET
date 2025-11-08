@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-catalog
+  labels:
+    app: rabbitmq-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq-catalog
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-catalog
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.12-management-alpine
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "bookstore"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "bookstore123"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog
+  labels:
+    app: catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      labels:
+        app: catalog
+    spec:
+      containers:
+        - name: catalog
+          image: bookstore-catalog-service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "docker"
+            - name: SERVER_PORT
+              value: "8080"
+            - name: DB_URL
+              value: "jdbc:mysql://mysql-db:3306/catalogdb"
+            - name: DB_USER
+              value: "bookstore"
+            - name: DB_PASSWORD
+              value: "bookstore123"
+            - name: GRPC_SERVER_PORT
+              value: "9090"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq-catalog-svc"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "bookstore"
+            - name: RABBITMQ_PASS
+              value: "bookstore123"

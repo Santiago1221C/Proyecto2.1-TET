@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-payment
+  labels:
+    app: rabbitmq-payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq-payment
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-payment
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.12-management-alpine
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "bookstore"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "bookstore123"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+  labels:
+    app: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment
+  template:
+    metadata:
+      labels:
+        app: payment
+    spec:
+      containers:
+        - name: payment
+          image: bookstore-payment-service:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: PORT
+              value: "5000"
+            # === Mongo (tal como lo tienes definido) ===
+            - name: MONGO_URI
+              value: "mongodb://mongodb:mongodb123@mongodb:27017/"
+            - name: MONGO_DB
+              value: "payment_db"
+            - name: JWT_SECRET
+              value: "bookstore-jwt-secret-key-change-in-production"
+            # === RabbitMQ interno por microservicio ===
+            - name: RABBITMQ_HOST
+              value: "rabbitmq-payment-svc"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "bookstore"
+            - name: RABBITMQ_PASS
+              value: "bookstore123"

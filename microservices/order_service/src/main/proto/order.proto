@@ -1,0 +1,27 @@
+syntax = "proto3";
+package order;
+
+option java_multiple_files = true;
+option java_package = "com.bookstore.order.grpc";
+option java_outer_classname = "OrderProto";
+
+message OrderItem {
+    int64 bookId = 1;
+    string title = 2;
+    string author = 3;
+    double price = 4;
+    int32 quantity = 5;
+}
+
+message CreateOrderFromCartRequest {
+    int64 userId = 1;
+}
+
+message CreateOrderFromCartResponse {
+    int64 orderId = 1;
+    string status = 2;
+}
+
+service OrderService {
+    rpc CreateOrderFromCart(CreateOrderFromCartRequest) returns (CreateOrderFromCartResponse);
+}
