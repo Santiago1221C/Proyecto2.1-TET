@@ -12,4 +12,4 @@ ENV FLASK_APP=app.py
 
 EXPOSE 8084
 
-CMD ["gunicorn", "--bind", "app:app", "python", "app.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8084", "app:app"]
