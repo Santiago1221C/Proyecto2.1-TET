@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-user
+  labels:
+    app: rabbitmq-user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq-user
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-user
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.12-management-alpine
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "bookstore"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "bookstore123"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  labels:
+    app: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: bookstore-user-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "docker"
+            - name: SERVER_PORT
+              value: "8083"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql-db:3306/userdb"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "bookstore"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "bookstore123"
+            - name: JWT_SECRET
+              value: "bookstore-jwt-secret-key-change-in-production"
+            # === RabbitMQ interno ===
+            - name: RABBITMQ_HOST
+              value: "rabbitmq-user-svc"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "bookstore"
+            - name: RABBITMQ_PASS
+              value: "bookstore123"
