@@ -55,7 +55,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SERVER_PORT: 8081
-      DB_URL: DB_URL: jdbc:mysql://mysql-db:3306/cartdb
+      DB_URL: jdbc:mysql://mysql-db:3306/cartdb
       DB_USER: bookstore
       DB_PASSWORD: bookstore123
       CATALOG_GRPC_HOST: catalog-service
@@ -117,10 +117,8 @@ services:
     networks:
       - bookstore-network
     restart: unless-stopped
-
   # Servicios con Python, Flask y FastAPI
-
-      # Servicio Payment
+  # Servicio Payment
   payment-service:
     build:
       context: ./microservices/payment_service
