@@ -5,11 +5,12 @@ import type { InitiatePaymentData, PaymentResponse } from "../types/Payment";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
 const PAYMENT_SERVICE_URL = `${API_BASE_URL}/payment`; 
 
-export const initiatePayment = async (orderId: number, amount: number): Promise<PaymentResponse> => {
+export const initiatePayment = async (orderId: number, amount: number, userId: number): Promise<PaymentResponse> => {
   
     const requestData: InitiatePaymentData = {
         orderId,
         amount,
+        userId,
         currency: 'USD',
         successUrl: window.location.origin + '/payment/success', 
         cancelUrl: window.location.origin + '/payment/cancel',

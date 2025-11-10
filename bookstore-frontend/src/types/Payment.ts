@@ -2,6 +2,7 @@
 export interface InitiatePaymentData {
     orderId: number;
     amount: number;
+    userId: number;
     currency: 'USD' | 'EUR' | string;
     successUrl: string; // URL de redirección en caso de éxito
     cancelUrl: string;  // URL de redirección en caso de cancelación o fallo

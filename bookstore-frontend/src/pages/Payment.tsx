@@ -30,7 +30,7 @@ const Payment = () => {
     setLoading(true);
     setError(null);
     try {
-      const { redirectUrl } = await initiatePayment(orderId, amount);
+      const { redirectUrl } = await initiatePayment(orderId, amount, userId);
       
       if (redirectUrl) {
         // Redirigir al usuario a la pasarela de pagos de terceros (Stripe/PayPal)
