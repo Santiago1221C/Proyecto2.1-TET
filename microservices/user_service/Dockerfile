@@ -24,20 +24,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 
 # Run application
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-
-<<<<<<< HEAD
-FROM gradle:7.5.0-jdk11-alpine as builder
-USER root
-WORKDIR /builder
-ADD . /builder
-RUN gradle build
-
-FROM openjdk:11.0.16-jre-slim
-WORKDIR /app
-EXPOSE 8080
-COPY --from=builder /builder/build/libs/kotlin-api-skeleton-0.0.1.jar .
-CMD ["java", "-jar", "kotlin-api-skeleton-0.0.1.jar"]
-=======
-
->>>>>>> parent of 2a92ff1 (Cambio de versión en temurin en User Service Dockerfile)
