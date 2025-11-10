@@ -52,3 +52,17 @@ spring:
             - Path=/users/**
           filters:
             - StripPrefix=1
+          
+        - id: payment-service
+          uri: http://payment-service:8084
+          predicates:
+            - Path=/payments/**
+          filters:
+            - StripPrefix=1
+        
+        - id: review-service
+          uri: http://review-service:5002
+          predicates:
+            - Path=/reviews/**
+          filters:
+            - StripPrefix=1

@@ -172,6 +172,8 @@ services:
       - cart-service
       - order-service
       - user-service
+      - payment-service
+      - review-service
     networks:
       - bookstore-network
     restart: unless-stopped
