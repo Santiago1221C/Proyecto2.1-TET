@@ -81,3 +81,8 @@ docker run -p 8080:8080 \
 ## Comunicación
 
 Este servicio utiliza **comunicación REST directa** (no RabbitMQ) para operaciones síncronas de autenticación y gestión de usuarios.
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> e61abe24f5b3ac6362c7180919693f9df9f2c3a2
