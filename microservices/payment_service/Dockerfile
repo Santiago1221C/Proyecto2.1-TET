@@ -6,10 +6,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ /app/
+COPY app.py /app/
 
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app.py
 
-EXPOSE 5000
+EXPOSE 8084
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]
+CMD ["app:app", "python", "app.py"]
