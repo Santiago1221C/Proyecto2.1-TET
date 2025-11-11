@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: review
-          image: bookstore-review-service:latest
+          image: jrodriguez0/bookstore-project:review-service
           ports:
             - containerPort: 5002
           env:

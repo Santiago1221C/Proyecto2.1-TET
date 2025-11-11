@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: cart
-          image: bookstore-cart-service:latest
+          image: jrodriguez0/bookstore-project:cart-service
           ports:
             - containerPort: 8081
           env:

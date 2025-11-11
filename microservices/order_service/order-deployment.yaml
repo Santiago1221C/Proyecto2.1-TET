@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: bookstore-order-service:latest
+          image: jrodriguez0/bookstore-project:order-service
           ports:
             - containerPort: 8082
           env:
