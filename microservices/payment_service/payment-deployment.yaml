@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: payment
-          image: bookstore-payment-service:latest
+          image: jrodriguez0/bookstore-project:payment-service
           ports:
             - containerPort: 5000
           env:

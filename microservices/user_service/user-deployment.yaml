@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: user
-          image: bookstore-user-service:latest
+          image: jrodriguez0/bookstore-project:user-service
           ports:
             - containerPort: 8083
           env:

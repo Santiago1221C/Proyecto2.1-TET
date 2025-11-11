@@ -1,5 +1,5 @@
 server:
-  port: 8088  # Puerto del gateway
+  port: 8088
 
 spring:
   application:
@@ -23,7 +23,6 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
 
-      # 👇 Tus rutas
       routes:
         - id: catalog-service
           uri: http://catalog-service:8080

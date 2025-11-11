@@ -1,0 +1,28 @@
+apiVersion:apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas:1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app:frontend
+    spec:
+      containers:
+        - name: frontend
+          image: jrodriguez0/bookstore-project:frontend
+          ports:
+            - containerPort:80
+          env:
+            - name:NODE_ENV
+              value: "production"
+            - name: API_GATEWAY_URL
+              value: "http://gateway-service:8088"
+            - name: PORT
+              value: "80"
