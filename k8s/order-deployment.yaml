@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+        - name: order
+          image: jrodriguez0/bookstore-project:order-service
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "docker"
+            - name: SERVER_PORT
+              value: "8082"
+            - name: DB_URL
+              value: "jdbc:mysql://mysql-db:3306/orderdb"
+            - name: DB_USER
+              value: "bookstore"
+            - name: DB_PASSWORD
+              value: "bookstore123"
+            - name: CART_GRPC_HOST
+              value: "cart-service"
+            - name: CART_GRPC_PORT
+              value: "9091"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              value: "bookstore"
+            - name: RABBITMQ_PASS
+              value: "bookstore123"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  selector:
+    app: order
+  ports:
+    - port: 8082
+      targetPort: 8082
+  type: ClusterIP
