@@ -25,11 +25,11 @@ spec:
             - name: PORT
               value: "5000"
             - name: DATABASE_URL
-              value: "mysql://bookstore:bookstore123@mysql-db:3306/payment_db" # Ajustar al formato de URL que use tu app Flask/Python
+              value: "mysql://bookstore:bookstore123@mysql-service:3306/payment_db"
             - name: JWT_SECRET
               value: "bookstore-jwt-secret-key-change-in-production"
             - name: RABBITMQ_HOST
-              value: "rabbitmq-payment-svc"
+              value: "rabbitmq-service"
             - name: RABBITMQ_PORT
               value: "5672"
             - name: RABBITMQ_USER

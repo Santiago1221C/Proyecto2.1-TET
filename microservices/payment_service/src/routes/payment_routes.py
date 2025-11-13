@@ -1,251 +1,117 @@
-"""
-Payment API Routes
-REST endpoints for payment operations with improved error handling and validation
-"""
 from flask import Blueprint, request, jsonify
-from services.payment_service import PaymentService
-from events.payment_producer import PaymentProducer
-from utils.validators import PaymentValidator
-from utils.api_response import ResponseBuilder, ErrorHandler, ResponseFormatter
-from utils.constants import HTTPStatusCodes, ErrorMessages, SuccessMessages
-import logging
+from src.services.payment_service import build_cc_payload, build_pse_payload, get_pse_banks
 
-logger = logging.getLogger(__name__)
+# Definimos el Blueprint para las rutas de pago
 payment_bp = Blueprint('payment', __name__)
-payment_service = PaymentService()
-payment_producer = PaymentProducer()
 
-@payment_bp.route('/', methods=['POST'])
-def create_payment():
-    """
-    Create a new payment with comprehensive validation and error handling
-    
-    Request body:
-    {
-        "order_id": "string",
-        "user_id": "string", 
-        "amount": float,
-        "currency": "USD",
-        "payment_method": "credit_card"
-    }
-    
-    Returns:
-        JSON response with payment result
-    """
-    try:
-        # Get and validate request data
-        data = request.get_json()
-        if not data:
-            response = ResponseBuilder.validation_error(
-                message="No data provided",
-                errors=[{"field": "body", "message": "Request body is required"}]
-            )
-            return response.to_json_response()
-        
-        # Validate payment data
-        is_valid, validation_errors = PaymentValidator.validate_payment_request(data)
-        if not is_valid:
-            response = ResponseBuilder.validation_error(
-                message="Validation failed",
-                errors=[{"field": "validation", "message": error} for error in validation_errors]
-            )
-            return response.to_json_response()
-        
-        # Process payment
-        result = payment_service.process_payment(data)
-        
-        # Publish payment event based on status
-        try:
-            if result['status'] == 'completed':
-                payment_producer.publish_payment_event('completed', result)
-            elif result['status'] == 'failed':
-                payment_producer.publish_payment_event('failed', result)
-        except Exception as e:
-            logger.warning(f"Failed to publish payment event: {str(e)}")
-            # Don't fail the request if event publishing fails
-        
-        # Return appropriate response
-        if result['status'] in ['completed', 'pending']:
-            response = ResponseBuilder.success(
-                message=SuccessMessages.PAYMENT_PROCESSED,
-                data=ResponseFormatter.format_payment_response(result)
-            )
-            return response.to_json_response()
-        else:
-            response = ResponseBuilder.error(
-                message=result.get('message', ErrorMessages.PAYMENT_DECLINED),
-                errors=result.get('errors', []),
-                status_code=HTTPStatusCodes.BAD_REQUEST
-            )
-            return response.to_json_response()
-        
-    except Exception as e:
-        logger.error(f"Error in create_payment: {str(e)}")
-        response = ErrorHandler.handle_payment_error(e)
-        return response.to_json_response()
+# Estados que indican una transacción exitosa o en proceso
+SUCCESS_STATUS = ["APPROVED", "PENDING"]
 
-@payment_bp.route('/<payment_id>', methods=['GET'])
-def get_payment(payment_id):
-    """
-    Get payment status by ID with improved error handling
-    
-    Args:
-        payment_id: Payment identifier
-        
-    Returns:
-        JSON response with payment details or error
-    """
+@payment_bp.route('/banks/pse', methods=['GET'])
+def list_pse_banks():
     try:
-        if not payment_id:
-            response = ResponseBuilder.validation_error(
-                message="Payment ID is required",
-                errors=[{"field": "payment_id", "message": "Payment ID cannot be empty"}]
-            )
-            return response.to_json_response()
+        payu_response = get_pse_banks()
         
-        result = payment_service.get_payment_status(payment_id)
-        
-        if result:
-            response = ResponseBuilder.success(
-                message=SuccessMessages.PAYMENT_STATUS_RETRIEVED,
-                data=ResponseFormatter.format_payment_response(result)
-            )
-            return response.to_json_response()
+        if payu_response.get('code') == "SUCCESS":
+            return jsonify({
+                "code": "SUCCESS",
+                "banks": payu_response.get('banks', [])
+            }), 200
         else:
-            response = ResponseBuilder.not_found(
-                message=ErrorMessages.PAYMENT_NOT_FOUND
-            )
-            return response.to_json_response()
+            return jsonify({
+                "error": "Fallo al obtener la lista de bancos PayU", 
+                "details": payu_response.get('error')
+            }), 400
             
     except Exception as e:
-        logger.error(f"Error in get_payment: {str(e)}")
-        response = ErrorHandler.handle_payment_error(e, payment_id)
-        return response.to_json_response()
+        print(f"Error inesperado al listar bancos PSE: {e}")
+        return jsonify({"error": "Error interno del servidor"}), 500
 
-@payment_bp.route('/user/<user_id>', methods=['GET'])
-def get_user_payments(user_id):
-    """
-    Get all payments for a user with improved error handling
+@payment_bp.route('/checkout', methods=['POST'])
+def initiate_checkout():
+    data = request.json
     
-    Args:
-        user_id: User identifier
-        
-    Returns:
-        JSON response with user payments or error
-    """
-    try:
-        if not user_id:
-            response = ResponseBuilder.validation_error(
-                message="User ID is required",
-                errors=[{"field": "user_id", "message": "User ID cannot be empty"}]
-            )
-            return response.to_json_response()
-        
-        payments = payment_service.get_user_payments(user_id)
-        
-        response = ResponseBuilder.success(
-            message=SuccessMessages.USER_PAYMENTS_RETRIEVED,
-            data=ResponseFormatter.format_payment_list(payments)
-        )
-        return response.to_json_response()
-        
-    except Exception as e:
-        logger.error(f"Error in get_user_payments: {str(e)}")
-        response = ErrorHandler.handle_payment_error(e, user_id)
-        return response.to_json_response()
+    # 1. Validación de datos de entrada mínimos y método de pago
+    method = data.get('paymentMethod')
+    if method not in ["CC", "PSE"]:
+        return jsonify({"error": "paymentMethod debe ser 'CC' o 'PSE'"}), 400
+    if not all(k in data.get('order', {}) for k in ('orderId', 'amount')):
+        return jsonify({"error": "Faltan datos de orden (orderId o amount)"}), 400
+    if not data.get('user'):
+        return jsonify({"error": "Faltan datos de usuario"}), 400
 
-@payment_bp.route('/<payment_id>/refund', methods=['POST'])
-def refund_payment(payment_id):
-    """
-    Refund a payment with improved validation and error handling
-    
-    Args:
-        payment_id: Payment identifier to refund
-        
-    Returns:
-        JSON response with refund result or error
-    """
     try:
-        if not payment_id:
-            response = ResponseBuilder.validation_error(
-                message="Payment ID is required",
-                errors=[{"field": "payment_id", "message": "Payment ID cannot be empty"}]
-            )
-            return response.to_json_response()
+        order_data = data['order']
+        user_data = data['user']
         
-        result = payment_service.refund_payment(payment_id)
+        # Obtener datos de la sesión del cliente
+        client_data = {
+            "ipAddress": request.remote_addr, 
+            "userAgent": request.headers.get('User-Agent'),
+            "deviceSessionId": data.get('deviceSessionId', 'SIMULATED_SESSION_ID'),
+            "cookie": data.get('cookie', 'SIMULATED_COOKIE')
+        }
+
+        payu_response = {}
         
-        if result['success']:
-            # Publish refund event
-            try:
-                payment_producer.publish_payment_event('refunded', {
-                    'payment_id': payment_id,
-                    'refunded_at': result.get('refunded_at')
-                })
-            except Exception as e:
-                logger.warning(f"Failed to publish refund event: {str(e)}")
-                # Don't fail the request if event publishing fails
+        if method == "CC":
+            if not data.get('card'):
+                 return jsonify({"error": "Faltan datos de tarjeta para el método CC"}), 400
+            # Llamada al servicio de tarjeta de crédito
+            payu_response = build_cc_payload(order_data, user_data, data['card'], client_data)
+        
+        elif method == "PSE":
+            if not data.get('pse') or not order_data.get('responseUrl'):
+                 return jsonify({"error": "Faltan datos PSE (bankCode, userType) o responseUrl"}), 400
+            # Llamada al servicio de pago PSE
+            payu_response = build_pse_payload(order_data, user_data, data['pse'], client_data)
+        
+        # 2. Procesar Respuesta PayU (Unificada)
+        transaction_response = payu_response.get('transactionResponse', {})
+        transaction_status = transaction_response.get('state')
+        
+        # Extracción de campos detallados
+        detailed_response = {
+            "transactionId": transaction_response.get('transactionId'),
+            "orderId": transaction_response.get('orderId'),
+            "state": transaction_status,
+            "responseCode": transaction_response.get('responseCode'),
+            "paymentNetworkResponseCode": transaction_response.get('paymentNetworkResponseCode'),
+            "trazabilityCode": transaction_response.get('trazabilityCode'),
+            "authorizationCode": transaction_response.get('authorizationCode'),
+            "responseMessage": transaction_response.get('responseMessage'),
+            "operationDate": transaction_response.get('operationDate')
+        }
+        
+        if payu_response.get('code') == "SUCCESS" and transaction_status in SUCCESS_STATUS:
             
-            response = ResponseBuilder.success(
-                message=result['message'],
-                data=result
-            )
-            return response.to_json_response()
+            if method == "PSE":
+                # PSE: Retorna la URL de redirección
+                redirection_url = transaction_response.get('extraParameters', {}).get('BANK_URL')
+                return jsonify({
+                    "message": "Redirección a PSE pendiente", 
+                    "status": transaction_status,
+                    "redirectionUrl": redirection_url,
+                    "details": detailed_response
+                }), 200
+            else:
+                # CC: Retorna el estado final
+                return jsonify({
+                    "message": "Transacción procesada correctamente", 
+                    "status": transaction_status,
+                    "details": detailed_response
+                }), 200
         else:
-            response = ResponseBuilder.error(
-                message=result['message'],
-                errors=result.get('errors', []),
-                status_code=HTTPStatusCodes.BAD_REQUEST
-            )
-            return response.to_json_response()
+            # Transacción RECHAZADA o ERROR de API
+            error_message = payu_response.get('error') or transaction_response.get('responseMessage', 'Transacción rechazada o fallida')
+            
+            return jsonify({
+                "error": "Fallo en el pago",
+                "details": error_message,
+                "status": transaction_status or 'ERROR',
+                "payuResponseDetails": detailed_response 
+            }), 400
             
     except Exception as e:
-        logger.error(f"Error in refund_payment: {str(e)}")
-        response = ErrorHandler.handle_payment_error(e, payment_id)
-        return response.to_json_response()
-
-@payment_bp.route('/validate', methods=['POST'])
-def validate_payment_method():
-    """
-    Validate payment method with comprehensive validation
-    
-    Request body:
-    {
-        "card_number": "string",
-        "cvv": "string", 
-        "expiry_date": "MM/YY"
-    }
-    
-    Returns:
-        JSON response with validation result
-    """
-    try:
-        data = request.get_json()
-        if not data:
-            response = ResponseBuilder.validation_error(
-                message="No data provided",
-                errors=[{"field": "body", "message": "Request body is required"}]
-            )
-            return response.to_json_response()
-        
-        # Validate payment method data
-        is_valid, validation_errors = PaymentValidator.validate_payment_method(data)
-        
-        if is_valid:
-            response = ResponseBuilder.success(
-                message=SuccessMessages.PAYMENT_METHOD_VALID,
-                data={'valid': True}
-            )
-            return response.to_json_response()
-        else:
-            response = ResponseBuilder.validation_error(
-                message="Payment method validation failed",
-                errors=[{"field": "validation", "message": error} for error in validation_errors]
-            )
-            return response.to_json_response()
-            
-    except Exception as e:
-        logger.error(f"Error in validate_payment_method: {str(e)}")
-        response = ErrorHandler.handle_payment_error(e)
-        return response.to_json_response()
-
+        print(f"Error inesperado al procesar el checkout: {e}")
+        return jsonify({"error": "Error interno del servidor", "status": "INTERNAL_ERROR"}), 500
