@@ -1,4 +1,4 @@
-package main.java.com.bookstore.user.messaging;
+package com.bookstore.user.messaging;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;

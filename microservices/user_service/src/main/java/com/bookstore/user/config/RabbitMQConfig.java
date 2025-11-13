@@ -1,4 +1,4 @@
-package main.java.com.bookstore.user.config;
+package com.bookstore.user.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

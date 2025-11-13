@@ -1,4 +1,4 @@
-package com.bookstore.cart_service.event;
+package com.bookstore.cart_service.messaging;
 
 import com.bookstore.cart_service.config.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
