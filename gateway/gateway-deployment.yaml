@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: jrodriguez0/bookstore-project:gateway
+          image: jrodriguez0/bookstoreproject-2:gateway
           ports:
             - containerPort: 8088
           env:

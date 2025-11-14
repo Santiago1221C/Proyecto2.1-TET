@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: santi1221/bookstore-tet:order-service
+          image: jrodriguez0/bookstoreproject-2:order-service
           ports:
             - containerPort: 8082
           env:
