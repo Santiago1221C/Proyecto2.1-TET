@@ -1,24 +1,48 @@
 // Estructura de datos enviada al backend para iniciar el checkout
-export interface InitiatePaymentData {
-    orderId: number;
-    amount: number;
-    userId: number;
-    currency: 'USD' | 'EUR' | string;
-    successUrl: string; // URL de redirección en caso de éxito
-    cancelUrl: string;  // URL de redirección en caso de cancelación o fallo
-}
-export interface PaymentResponse {
-    message?: string;
-    error?: string;
-    details?: string;
-    redirectUrl: string; // La URL a donde el frontend debe redirigir
-    transactionId?: string;
+export interface PaymentUser {
+  fullName: string;
+  email: string;
+  contactPhone?: string;
+  dniNumber?: string;
+  dniType?: string;
+  shippingAddress?: any;
 }
 
-// Interfaz para la captura de tarjeta (no usada en el frontend actual, pero útil)
-export interface PaymentDetails {
-    cardNumber: string;
-    expiryDate: string;
-    cvc: string;
-    cardHolderName: string;
+export interface PaymentCard {
+  number: string;
+  securityCode: string;
+  expirationDate: string;
+  cardHolderName: string;
+  paymentMethod?: string;
+}
+
+export interface PaymentPse {
+  bankCode: string;
+  userType: string;
+}
+
+export interface PaymentOrder {
+  orderId: string;
+  amount: number;
+  responseUrl?: string;
+  notifyUrl?: string;
+}
+
+export interface PaymentCheckoutRequest {
+  paymentMethod: "CC" | "PSE";
+  order: PaymentOrder;
+  user: PaymentUser;
+  card?: PaymentCard;
+  pse?: PaymentPse;
+  deviceSessionId?: string;
+  cookie?: string;
+}
+
+export interface PaymentCheckoutResponse {
+  message?: string;
+  status?: string;
+  redirectionUrl?: string;
+  details?: any;
+  error?: string;
+  payuResponseDetails?: any;
 }
