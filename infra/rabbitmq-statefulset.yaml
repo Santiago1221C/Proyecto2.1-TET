@@ -37,10 +37,7 @@ spec:
       volumes:
         - name: rabbitmq-config
           configMap:
-            name: rabbitmq-conf
-            items:
-              - key: rabbitmq.conf
-                path: rabbitmq.conf
+            name: rabbitmq-config
   volumeClaimTemplates:
     - metadata:
         name: rabbitmq-storage
