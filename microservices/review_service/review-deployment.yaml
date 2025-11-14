@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: review
-          image: jrodriguez0/bookstoreproject-2:review-service
+          image: santi1221/bookstore-tet:review-service
           ports:
             - containerPort: 5002
           env:

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: catalog
-          image: jrodriguez0/bookstoreproject-2:catalog-service
+          image: santi1221/bookstore-tet:catalog-service
           ports:
             - containerPort: 8080
           env:
