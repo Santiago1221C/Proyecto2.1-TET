@@ -40,7 +40,7 @@ spec:
             name: rabbitmq-config
   volumeClaimTemplates:
     - metadata:
-        name: mysql-pvc
+        name: rabbitmq-storage
       spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: ebs-gp3
