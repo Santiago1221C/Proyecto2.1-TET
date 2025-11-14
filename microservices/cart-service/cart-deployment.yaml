@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cart
-  namespace: bookstore
   labels:
     app: cart
 spec:
@@ -17,49 +16,46 @@ spec:
     spec:
       containers:
         - name: cart
-          image: jrodriguez0/bookstore-project:cart-service
+          image: jrodriguez0/bookstoreproject-2:cart-service
           ports:
             - containerPort: 8081
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: "docker"
+              value: docker
             - name: SERVER_PORT
               value: "8081"
+
+            # MYSQL
             - name: DB_URL
-              value: "jdbc:mysql://mysql-db:3306/cartdb"
+              value: jdbc:mysql://mysql-db:3306/cartdb
             - name: DB_USER
-              value: "bookstore"
+              value: bookstore
             - name: DB_PASSWORD
-              value: "bookstore123"
+              value: bookstore123
+
+            # gRPC
             - name: CATALOG_GRPC_HOST
-              value: "catalog-service"
+              value: catalog-service
             - name: CATALOG_GRPC_PORT
               value: "9090"
+
+            # RABBITMQ
             - name: RABBITMQ_HOST
-              value: "rabbitmq-service"
+              value: rabbitmq-service
             - name: RABBITMQ_PORT
               value: "5672"
             - name: RABBITMQ_USER
-              value: "bookstore"
+              value: bookstore
             - name: RABBITMQ_PASS
-              value: "bookstore123"
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
+              value: bookstore123
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: cart-service
-  namespace: bookstore
 spec:
-  selector:
-    app: cart
   ports:
     - port: 8081
       targetPort: 8081
-  type: ClusterIP
+  selector:
+    app: cart
