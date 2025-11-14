@@ -40,9 +40,10 @@ spec:
             name: rabbitmq-config
   volumeClaimTemplates:
     - metadata:
-        name: rabbitmq-storage
+        name: mysql-pvc
       spec:
         accessModes: ["ReadWriteOnce"]
+        storageClassName: ebs-gp3
         resources:
           requests:
-            storage: 1Gi
+            storage: 8Gi
