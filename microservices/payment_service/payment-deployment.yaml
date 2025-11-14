@@ -16,18 +16,16 @@ spec:
     spec:
       containers:
         - name: payment
-          image: jrodriguez0/bookstore-project:payment-service
+          image: jrodriguez0/bookstoreproject-2:payment-service
           ports:
-            - containerPort: 5000
+            - containerPort: 8084
           env:
             - name: FLASK_ENV
               value: "production"
             - name: PORT
               value: "5000"
             - name: DATABASE_URL
-              value: "mysql://bookstore:bookstore123@mysql-service:3306/payment_db"
-            - name: JWT_SECRET
-              value: "bookstore-jwt-secret-key-change-in-production"
+              value: "mysql://bookstore:bookstore123@mysql-db:3306/paymentdb"
             - name: RABBITMQ_HOST
               value: "rabbitmq-service"
             - name: RABBITMQ_PORT

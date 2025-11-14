@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: review
-          image: jrodriguez0/bookstore-project:review-service
+          image: jrodriguez0/bookstoreproject-2:review-service
           ports:
             - containerPort: 5002
           env:
@@ -25,11 +25,7 @@ spec:
             - name: PORT
               value: "5002"
             - name: DATABASE_URL
-              value: "mysql://bookstore:bookstore123@mysql-db:3306/review_db" # Ajustar al formato de URL que use tu app Flask/Python
-            - name: USER_SERVICE_URL
-              value: "http://user-service:8083"
-            - name: JWT_SECRET
-              value: "bookstore-jwt-secret-key-change-in-production"
+              value: "mysql://bookstore:bookstore123@mysql-db:3306/reviewdb"
             - name: RABBITMQ_HOST
               value: "rabbitmq-review-svc"
             - name: RABBITMQ_PORT

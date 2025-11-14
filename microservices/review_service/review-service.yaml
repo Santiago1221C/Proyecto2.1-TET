@@ -12,21 +12,3 @@ spec:
       port: 5002
       targetPort: 5002
   type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: rabbitmq-review-svc
-  labels:
-    app: rabbitmq-review
-spec:
-  selector:
-    app: rabbitmq-review
-  ports:
-    - name: amqp
-      port: 5672
-      targetPort: 5672
-    - name: management
-      port: 15672
-      targetPort: 15672
-  type: ClusterIP
