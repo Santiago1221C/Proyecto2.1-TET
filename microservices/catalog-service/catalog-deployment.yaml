@@ -21,39 +21,30 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: docker
+              value: "docker"
+
             - name: SERVER_PORT
               value: "8080"
 
-            # MYSQL
+            # ✔ Base de datos CORRECTA
             - name: DB_URL
-              value: jdbc:mysql://mysql-db:3306/catalogdb
-            - name: DB_USER
-              value: bookstore
-            - name: DB_PASSWORD
-              value: bookstore123
+              value: "jdbc:mysql://mysql-db:3306/catalogdb"
 
-            # gRPC
+            - name: DB_USER
+              value: "bookstore"
+            - name: DB_PASSWORD
+              value: "bookstore123"
+
+            # ✔ gRPC
             - name: GRPC_SERVER_PORT
               value: "9090"
 
-            # RABBITMQ
+            # ✔ RabbitMQ centralizado
             - name: RABBITMQ_HOST
-              value: rabbitmq-service
+              value: "rabbitmq"
             - name: RABBITMQ_PORT
               value: "5672"
             - name: RABBITMQ_USER
-              value: bookstore
+              value: "bookstore"
             - name: RABBITMQ_PASS
-              value: bookstore123
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: catalog-service
-spec:
-  ports:
-    - port: 8080
-      targetPort: 8080
-  selector:
-    app: catalog
+              value: "bookstore123"

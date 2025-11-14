@@ -6,10 +6,24 @@ metadata:
     app: mysql-db
 data:
   init.sql: |
+    -- Crear usuario principal para todos los microservicios
     CREATE USER IF NOT EXISTS 'bookstore'@'%' IDENTIFIED BY 'bookstore123';
+    CREATE USER IF NOT EXISTS 'bookstore'@'localhost' IDENTIFIED BY 'bookstore123';
+
+    -- Bases de datos para TODOS los microservicios
     CREATE DATABASE IF NOT EXISTS catalogdb;
     CREATE DATABASE IF NOT EXISTS cartdb;
     CREATE DATABASE IF NOT EXISTS orderdb;
     CREATE DATABASE IF NOT EXISTS userdb;
-    GRANT ALL PRIVILEGES ON *.* TO 'bookstore'@'%';
+    CREATE DATABASE IF NOT EXISTS review_db;
+    CREATE DATABASE IF NOT EXISTS payment_db;
+
+    -- Privilegios
+    GRANT ALL PRIVILEGES ON catalogdb.* TO 'bookstore'@'%';
+    GRANT ALL PRIVILEGES ON cartdb.* TO 'bookstore'@'%';
+    GRANT ALL PRIVILEGES ON orderdb.* TO 'bookstore'@'%';
+    GRANT ALL PRIVILEGES ON userdb.* TO 'bookstore'@'%';
+    GRANT ALL PRIVILEGES ON review_db.* TO 'bookstore'@'%';
+    GRANT ALL PRIVILEGES ON payment_db.* TO 'bookstore'@'%';
+
     FLUSH PRIVILEGES;
