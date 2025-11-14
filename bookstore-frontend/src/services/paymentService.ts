@@ -1,39 +1,63 @@
-import axios from "axios";
-import type { InitiatePaymentData, PaymentResponse } from "../types/Payment"; 
+const RAW_API_BASE =
+  (globalThis as any)?.REACT_APP_API_BASE ||
+  (globalThis as any)?.process?.env?.REACT_APP_API_BASE ||
+  (window as any)?.REACT_APP_API_BASE ||
+  "";
 
-// URL base para el microservicio de pagos
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
-const PAYMENT_SERVICE_URL = `${API_BASE_URL}/payment`; 
+export const API_BASE = RAW_API_BASE.startsWith("http")
+  ? RAW_API_BASE.replace(/\/+$/, "")
+  : `http://${RAW_API_BASE.replace(/\/+$/, "")}`;
 
-export const initiatePayment = async (orderId: number, amount: number, userId: number): Promise<PaymentResponse> => {
-  
-    const requestData: InitiatePaymentData = {
-        orderId,
-        amount,
-        userId,
-        currency: 'USD',
-        successUrl: window.location.origin + '/payment/success', 
-        cancelUrl: window.location.origin + '/payment/cancel',
-    };
-
-    try {
-
-        const response = await axios.post<PaymentResponse>(`${PAYMENT_SERVICE_URL}/checkout`, requestData);
-        
-        return response.data;
-        
-    } catch (error) {
-
-        if (axios.isAxiosError(error) && error.response) {
-            
-            if (error.response.data && error.response.data.redirectUrl) {
-                return error.response.data as PaymentResponse; 
-            }
-            
-            throw new Error(error.response.data.error || "Error de servicio de pagos desconocido.");
-        }
-        
-        
-        throw new Error("Error al comunicar con el Payment Service");
-    }
+export type CheckoutPayload = {
+  paymentMethod: "CC" | "PSE";
+  order: {
+    orderId: string;
+    amount: number;
+    responseUrl?: string;
+    notifyUrl?: string;
+  };
+  user: {
+    fullName: string;
+    email: string;
+    contactPhone?: string;
+    dniNumber?: string;
+    dniType?: string;
+    shippingAddress?: any;
+  };
+  card?: {
+    number: string;
+    securityCode: string;
+    expirationDate: string;
+    cardHolderName: string;
+    paymentMethod?: string;
+  };
+  pse?: {
+    bankCode: string;
+    userType: string;
+  };
+  deviceSessionId?: string;
+  cookie?: string;
 };
+
+export async function getPseBanks(): Promise<any> {
+  const url = `${API_BASE}/banks/pse`;
+  const res = await fetch(url, { method: "GET" });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function checkout(payload: CheckoutPayload): Promise<any> {
+  const url = `${API_BASE}/checkout`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const text = await res.text();
+  const json = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    const msg = (json && (json.error || json.details)) || text || `Error ${res.status}`;
+    throw new Error(msg);
+  }
+  return json;
+}
