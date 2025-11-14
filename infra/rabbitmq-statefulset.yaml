@@ -34,6 +34,13 @@ spec:
             - name: rabbitmq-config
               mountPath: /etc/rabbitmq/rabbitmq.conf
               subPath: rabbitmq.conf
+      volumes:
+        - name: rabbitmq-config
+          configMap:
+            name: rabbitmq-conf
+            items:
+              - key: rabbitmq.conf
+                path: rabbitmq.conf
   volumeClaimTemplates:
     - metadata:
         name: rabbitmq-storage
