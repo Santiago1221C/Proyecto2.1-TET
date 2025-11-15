@@ -10,4 +10,4 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: ebs-gp3
+  storageClassName: gp2
