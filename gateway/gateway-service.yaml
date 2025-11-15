@@ -8,7 +8,8 @@ spec:
   selector:
     app: gateway
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 8088
       targetPort: 8088
-  type: ClusterIP
+  type: LoadBalancer

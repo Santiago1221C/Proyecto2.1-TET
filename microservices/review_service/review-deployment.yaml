@@ -18,19 +18,19 @@ spec:
         - name: review
           image: jrodriguez0/bookstoreproject-2:review-service
           ports:
-            - containerPort: 5002
+            - containerPort: 8085
+              name: http
           env:
-            - name: FLASK_ENV
-              value: "production"
-            - name: PORT
-              value: "5002"
-            - name: DATABASE_URL
-              value: "mysql://bookstore:bookstore123@mysql-db:3306/reviewdb"
-            - name: RABBITMQ_HOST
-              value: "rabbitmq-review-svc"
-            - name: RABBITMQ_PORT
-              value: "5672"
-            - name: RABBITMQ_USER
-              value: "bookstore"
-            - name: RABBITMQ_PASS
-              value: "bookstore123"
+            - name: SERVICE_PORT
+              value: "8085"
+            - name: USER_SERVICE_URL
+              value: "http://user-service:8083"
+            - name: CATALOG_SERVICE_URL
+              value: "http://catalog-service:8080"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "400m"

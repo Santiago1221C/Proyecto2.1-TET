@@ -19,29 +19,26 @@ spec:
           image: jrodriguez0/bookstoreproject-2:cart-service
           ports:
             - containerPort: 8081
+              name: http
+            - containerPort: 9091
+              name: grpc
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "docker"
-
             - name: SERVER_PORT
               value: "8081"
-
-            # ✔ Base de datos CORRECTA
+            - name: GRPC_SERVER_PORT
+              value: "9091"
             - name: DB_URL
               value: "jdbc:mysql://mysql-db:3306/cartdb"
-
             - name: DB_USER
               value: "bookstore"
             - name: DB_PASSWORD
               value: "bookstore123"
-
-            # ✔ gRPC hacia catálogo
             - name: CATALOG_GRPC_HOST
               value: "catalog-service"
             - name: CATALOG_GRPC_PORT
               value: "9090"
-
-            # ✔ RabbitMQ centralizado
             - name: RABBITMQ_HOST
               value: "rabbitmq"
             - name: RABBITMQ_PORT
@@ -50,3 +47,10 @@ spec:
               value: "bookstore"
             - name: RABBITMQ_PASS
               value: "bookstore123"
+          resources:
+            requests:
+              memory: "640Mi"
+              cpu: "400m"
+            limits:
+              memory: "1280Mi"
+              cpu: "800m"

@@ -13,24 +13,24 @@ spec:
     metadata:
       labels:
         app: payment
-    spec:
+    spec:      
       containers:
         - name: payment
           image: jrodriguez0/bookstoreproject-2:payment-service
           ports:
             - containerPort: 8084
+              name: http
           env:
-            - name: FLASK_ENV
-              value: "production"
-            - name: PORT
-              value: "5000"
-            - name: DATABASE_URL
-              value: "mysql://bookstore:bookstore123@mysql-db:3306/paymentdb"
-            - name: RABBITMQ_HOST
-              value: "rabbitmq-service"
-            - name: RABBITMQ_PORT
-              value: "5672"
-            - name: RABBITMQ_USER
-              value: "bookstore"
-            - name: RABBITMQ_PASS
-              value: "bookstore123"
+            - name: SERVICE_PORT
+              value: "8084"
+            - name: ORDER_SERVICE_URL
+              value: "http://order-service:8082"
+            - name: USER_SERVICE_URL
+              value: "http://user-service:8083"          
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "400m"

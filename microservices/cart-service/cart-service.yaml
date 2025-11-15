@@ -8,7 +8,12 @@ spec:
   selector:
     app: cart
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 8081
       targetPort: 8081
+    - name: grpc
+      protocol: TCP
+      port: 9091
+      targetPort: 9091
   type: ClusterIP

@@ -19,18 +19,16 @@ spec:
           image: jrodriguez0/bookstoreproject-2:gateway
           ports:
             - containerPort: 8088
+              name: http
           env:
-            - name: PORT
+            - name: SERVER_PORT
               value: "8088"
-            - name: CATALOG_SERVICE_URL
-              value: "http://catalog-service:8080"
-            - name: CART_SERVICE_URL
-              value: "http://cart-service:8081"
-            - name: ORDER_SERVICE_URL
-              value: "http://order-service:8082"
-            - name: USER_SERVICE_URL
-              value: "http://user-service:8083"
-            - name: PAYMENT_SERVICE_URL
-              value: "http://payment-service:8084"
-            - name: REVIEW_SERVICE_URL
-              value: "http://review-service:5002"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "docker"
+          resources:
+            requests:
+              memory: "768Mi"
+              cpu: "500m"
+            limits:
+              memory: "1536Mi"
+              cpu: "1000m"

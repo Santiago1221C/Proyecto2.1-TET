@@ -19,15 +19,42 @@ spec:
           image: mysql:8.0
           ports:
             - containerPort: 3306
+              name: mysql
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: "root"
+              value: "rootpassword"
+            # IMPORTANTE: Necesita una base de datos inicial
+            - name: MYSQL_DATABASE
+              value: "catalogdb"
+            - name: MYSQL_USER
+              value: "bookstore"
+            - name: MYSQL_PASSWORD
+              value: "bookstore123"
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
             - name: mysql-init
-              mountPath: /docker-entrypoint-initdb.d/init.sql
-              subPath: init.sql
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
       volumes:
         - name: mysql-data
           persistentVolumeClaim:

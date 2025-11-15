@@ -8,7 +8,12 @@ spec:
   selector:
     app: order
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 8082
       targetPort: 8082
+    - name: grpc
+      protocol: TCP
+      port: 9092
+      targetPort: 9092
   type: ClusterIP
