@@ -14,6 +14,41 @@ spec:
       labels:
         app: gateway
     spec:
+      initContainers:
+        - name: wait-for-all-services
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando a que TODOS los microservicios estén listos..."
+              
+              echo "Esperando Catalog Service..."
+              until nc -z catalog-service 8080; do sleep 2; done
+              echo "Catalog listo"
+              
+              echo "Esperando Cart Service..."
+              until nc -z cart-service 8081; do sleep 2; done
+              echo "Cart listo"
+              
+              echo "Esperando Order Service..."
+              until nc -z order-service 8082; do sleep 2; done
+              echo "Order listo"
+              
+              echo "Esperando User Service..."
+              until nc -z user-service 8083; do sleep 2; done
+              echo "User listo"
+              
+              echo "⏳ Esperando Payment Service..."
+              until nc -z payment-service 8084; do sleep 2; done
+              echo "Payment listo"
+              
+              echo "⏳ Esperando Review Service..."
+              until nc -z review-service 8085; do sleep 2; done
+              echo "Review listo"
+              
+              echo "¡Todos los microservicios están listos!"
+      
       containers:
         - name: gateway
           image: jrodriguez0/bookstoreproject-2:gateway
@@ -25,6 +60,25 @@ spec:
               value: "8088"
             - name: SPRING_PROFILES_ACTIVE
               value: "docker"
+          
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8088
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 5
+          
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8088
+            initialDelaySeconds: 90
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 3
+          
           resources:
             requests:
               memory: "768Mi"

@@ -14,6 +14,33 @@ spec:
       labels:
         app: review
     spec:
+      initContainers:
+        - name: wait-for-user
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando User Service..."
+              until nc -z user-service 8083; do
+                echo "User Service no está listo - esperando..."
+                sleep 2
+              done
+              echo "User Service está listo!"
+        
+        - name: wait-for-catalog
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando Catalog Service..."
+              until nc -z catalog-service 8080; do
+                echo "Catalog Service no está listo - esperando..."
+                sleep 2
+              done
+              echo "Catalog Service está listo!"
+      
       containers:
         - name: review
           image: jrodriguez0/bookstoreproject-2:review-service
@@ -27,6 +54,25 @@ spec:
               value: "http://user-service:8083"
             - name: CATALOG_SERVICE_URL
               value: "http://catalog-service:8080"
+          
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8085
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 5
+          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 3
+          
           resources:
             requests:
               memory: "256Mi"

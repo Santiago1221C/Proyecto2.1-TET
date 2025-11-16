@@ -14,6 +14,20 @@ spec:
       labels:
         app: catalog
     spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando MySQL..."
+              until nc -z mysql-db 3306; do
+                echo "MySQL no está listo - esperando..."
+                sleep 2
+              done
+              echo "MySQL está listo!"
+      
       containers:
         - name: catalog
           image: jrodriguez0/bookstoreproject-2:catalog-service
@@ -35,6 +49,24 @@ spec:
               value: "bookstore123"
             - name: GRPC_SERVER_PORT
               value: "9090"
+          
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 5
+          
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 3
           
           resources:
             requests:

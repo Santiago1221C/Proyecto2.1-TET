@@ -13,7 +13,34 @@ spec:
     metadata:
       labels:
         app: payment
-    spec:      
+    spec:
+      initContainers:
+        - name: wait-for-order
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando Order Service..."
+              until nc -z order-service 8082; do
+                echo "Order Service no está listo - esperando..."
+                sleep 2
+              done
+              echo "Order Service está listo!"
+        
+        - name: wait-for-user
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando User Service..."
+              until nc -z user-service 8083; do
+                echo "User Service no está listo - esperando..."
+                sleep 2
+              done
+              echo "User Service está listo!"
+      
       containers:
         - name: payment
           image: jrodriguez0/bookstoreproject-2:payment-service
@@ -26,7 +53,26 @@ spec:
             - name: ORDER_SERVICE_URL
               value: "http://order-service:8082"
             - name: USER_SERVICE_URL
-              value: "http://user-service:8083"          
+              value: "http://user-service:8083"
+          
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8084
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 5
+          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8084
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 3
+          
           resources:
             requests:
               memory: "256Mi"

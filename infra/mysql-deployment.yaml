@@ -22,19 +22,18 @@ spec:
               name: mysql
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: "rootpassword"
-            # IMPORTANTE: Necesita una base de datos inicial
-            - name: MYSQL_DATABASE
-              value: "catalogdb"
+              value: "root"
             - name: MYSQL_USER
               value: "bookstore"
             - name: MYSQL_PASSWORD
               value: "bookstore123"
+          
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
             - name: mysql-init
               mountPath: /docker-entrypoint-initdb.d
+          
           readinessProbe:
             exec:
               command:
@@ -42,9 +41,11 @@ spec:
                 - ping
                 - -h
                 - localhost
+                - -proot
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
+          
           livenessProbe:
             exec:
               command:
@@ -52,13 +53,23 @@ spec:
                 - ping
                 - -h
                 - localhost
+                - -proot
             initialDelaySeconds: 60
             periodSeconds: 20
             timeoutSeconds: 5
+          
+          resources:
+            requests:
+              memory: "768Mi"
+              cpu: "750m"
+            limits:
+              memory: "1536Mi"
+              cpu: "1500m"
+      
       volumes:
         - name: mysql-data
-          persistentVolumeClaim:
-            claimName: mysql-pvc
+          emptyDir: {}
+        
         - name: mysql-init
           configMap:
             name: mysql-init-config

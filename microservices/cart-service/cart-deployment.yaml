@@ -14,6 +14,46 @@ spec:
       labels:
         app: cart
     spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando MySQL..."
+              until nc -z mysql-db 3306; do
+                echo "MySQL no está listo - esperando..."
+                sleep 2
+              done
+              echo "MySQL está listo!"
+        
+        - name: wait-for-rabbitmq
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando RabbitMQ..."
+              until nc -z rabbitmq 5672; do
+                echo "RabbitMQ no está listo - esperando..."
+                sleep 2
+              done
+              echo "RabbitMQ está listo!"
+        
+        - name: wait-for-catalog
+          image: busybox:1.35
+          command: 
+            - sh
+            - -c
+            - |
+              echo "Esperando Catalog Service (gRPC)..."
+              until nc -z catalog-service 9090; do
+                echo "Catalog Service no está listo - esperando..."
+                sleep 2
+              done
+              echo "Catalog Service está listo!"
+      
       containers:
         - name: cart
           image: jrodriguez0/bookstoreproject-2:cart-service
@@ -47,6 +87,25 @@ spec:
               value: "bookstore"
             - name: RABBITMQ_PASS
               value: "bookstore123"
+          
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 5
+          
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 90
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 3
+          
           resources:
             requests:
               memory: "640Mi"
