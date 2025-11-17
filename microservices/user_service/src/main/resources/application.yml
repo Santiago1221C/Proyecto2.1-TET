@@ -1,15 +1,15 @@
 server:
-  port: 8081
+  port: 8083
 
 spring:
   application:
     name: user-service
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/bookstore_users
-    username: ${DB_USERNAME:bookstore_user}
-    password: ${DB_PASSWORD:bookstore_pass}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:mysql://mysql-db:3306/userdb
+    username: ${DB_USERNAME:bookstore}
+    password: ${DB_PASSWORD:bookstore123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   
   jpa:
     hibernate:
@@ -17,7 +17,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
   
   security:
