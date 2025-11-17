@@ -49,6 +49,8 @@ spec:
               value: "bookstore123"
             - name: GRPC_SERVER_PORT
               value: "9090"
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: "org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration"
           
           livenessProbe:
             httpGet:
