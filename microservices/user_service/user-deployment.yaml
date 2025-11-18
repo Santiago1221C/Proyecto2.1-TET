@@ -49,7 +49,7 @@ spec:
               value: "bookstore-jwt-secret-key-change-in-production"
           
           livenessProbe:
-            tcpSocket:
+            httpGet:
               path: /actuator/health/liveness
               port: 8083
             initialDelaySeconds: 120
@@ -58,7 +58,7 @@ spec:
             timeoutSeconds: 5
           
           readinessProbe:
-            tcpSocket:
+            httpGet:
               path: /actuator/health/readiness
               port: 8083
             initialDelaySeconds: 90

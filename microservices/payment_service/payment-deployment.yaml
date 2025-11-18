@@ -56,7 +56,7 @@ spec:
               value: "http://user-service:8083"
           
           livenessProbe:
-            tcpSocket:
+            httpGet:
               path: /health
               port: 8084
             initialDelaySeconds: 60
@@ -65,7 +65,7 @@ spec:
             timeoutSeconds: 5
           
           readinessProbe:
-            tcpSocket:
+            httpGet:
               path: /health
               port: 8084
             initialDelaySeconds: 30
