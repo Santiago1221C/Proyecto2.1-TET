@@ -54,10 +54,14 @@ spec:
               value: "http://user-service:8083"
             - name: CATALOG_SERVICE_URL
               value: "http://catalog-service:8080"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "*"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: "always"
           
           livenessProbe:
             httpGet:
-              path: /health
+              path: /actuator/health/liveness
               port: 8085
             initialDelaySeconds: 60
             periodSeconds: 10
@@ -66,7 +70,7 @@ spec:
           
           readinessProbe:
             httpGet:
-              path: /health
+              path: /actuator/health/readiness
               port: 8085
             initialDelaySeconds: 30
             periodSeconds: 5

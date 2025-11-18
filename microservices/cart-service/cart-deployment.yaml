@@ -87,7 +87,11 @@ spec:
               value: "bookstore"
             - name: RABBITMQ_PASS
               value: "bookstore123"
-          
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "*"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: "always"
+
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness

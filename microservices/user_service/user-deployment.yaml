@@ -47,6 +47,10 @@ spec:
               value: "bookstore123"
             - name: JWT_SECRET
               value: "bookstore-jwt-secret-key-change-in-production"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "*"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: "always"
           
           livenessProbe:
             httpGet:
