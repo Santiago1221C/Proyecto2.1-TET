@@ -91,7 +91,7 @@ spec:
               value: "-Xms512m -Xmx1024m -XX:+UseG1GC"
           
           livenessProbe:
-            httpGet:
+            tcpSocket:
               path: /actuator/health/liveness
               port: 8082
             initialDelaySeconds: 120
@@ -100,7 +100,7 @@ spec:
             timeoutSeconds: 5
           
           readinessProbe:
-            httpGet:
+            tcpSocket:
               path: /actuator/health/readiness
               port: 8082
             initialDelaySeconds: 90
