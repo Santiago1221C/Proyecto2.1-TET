@@ -22,6 +22,7 @@ spec:
             - -c
             - |
               echo "Esperando a que TODOS los microservicios estén listos..."
+              echo ""
               
               echo "Esperando Catalog Service..."
               until nc -z catalog-service 8080; do sleep 2; done
@@ -39,14 +40,15 @@ spec:
               until nc -z user-service 8083; do sleep 2; done
               echo "User listo"
               
-              echo "⏳ Esperando Payment Service..."
+              echo "Esperando Payment Service..."
               until nc -z payment-service 8084; do sleep 2; done
               echo "Payment listo"
               
-              echo "⏳ Esperando Review Service..."
+              echo "Esperando Review Service..."
               until nc -z review-service 8085; do sleep 2; done
               echo "Review listo"
               
+              echo ""
               echo "¡Todos los microservicios están listos!"
       
       containers:
@@ -58,12 +60,33 @@ spec:
           env:
             - name: SERVER_PORT
               value: "8088"
+            
             - name: SPRING_PROFILES_ACTIVE
               value: "docker"
+            
+            - name: SPRING_AUTOCONFIGURE_EXCLUDE
+              value: "org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration"
+            
+            - name: CATALOG_SERVICE_URL
+              value: "http://catalog-service:8080"
+            
+            - name: CART_SERVICE_URL
+              value: "http://cart-service:8081"
+            
+            - name: ORDER_SERVICE_URL
+              value: "http://order-service:8082"
+            
+            - name: USER_SERVICE_URL
+              value: "http://user-service:8083"
+            
+            - name: PAYMENT_SERVICE_URL
+              value: "http://payment-service:8084"
+            
+            - name: REVIEW_SERVICE_URL
+              value: "http://review-service:5002"
           
           livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
+            tcpSocket:
               port: 8088
             initialDelaySeconds: 120
             periodSeconds: 10
@@ -71,8 +94,7 @@ spec:
             timeoutSeconds: 5
           
           readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
+            tcpSocket:
               port: 8088
             initialDelaySeconds: 90
             periodSeconds: 5
