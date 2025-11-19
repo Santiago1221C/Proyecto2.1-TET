@@ -41,6 +41,8 @@ spec:
               value: "8083"
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:mysql://mysql-db:3306/userdb"
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: com.mysql.cj.jdbc.Driver
             - name: SPRING_DATASOURCE_USERNAME
               value: "bookstore"
             - name: SPRING_DATASOURCE_PASSWORD
@@ -53,7 +55,7 @@ spec:
               value: "always"
           
           livenessProbe:
-            httpGet:
+            tcpSocket:
               path: /actuator/health/liveness
               port: 8083
             initialDelaySeconds: 120
@@ -62,7 +64,7 @@ spec:
             timeoutSeconds: 5
           
           readinessProbe:
-            httpGet:
+            tcpSocket:
               path: /actuator/health/readiness
               port: 8083
             initialDelaySeconds: 90
