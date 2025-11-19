@@ -1,0 +1,95 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: bookstore-gateway
+
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+
+      routes:
+        - id: catalog-service
+          uri: http://catalog-service:8080
+          predicates:
+            - Path=/catalog/**
+          filters:
+            - StripPrefix=1
+
+        - id: cart-service
+          uri: http://cart-service:8081
+          predicates:
+            - Path=/cart/**
+          filters:
+            - StripPrefix=1
+
+        - id: order-service
+          uri: http://order-service:8082
+          predicates:
+            - Path=/orders/**
+          filters:
+            - StripPrefix=1
+        
+        - id: user-service
+          uri: http://user-service:8083
+          predicates:
+            - Path=/users/**
+          filters:
+            - StripPrefix=1
+        
+        - id: auth-service
+          uri: http://user-service:8083
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+          
+        - id: payment-service
+          uri: http://payment-service:8084
+          predicates:
+            - Path=/payments/**
+          filters:
+            - StripPrefix=1
+        
+        - id: review-service
+          uri: http://review-service:8085
+          predicates:
+            - Path=/reviews/**
+          filters:
+            - StripPrefix=1
+
+      discovery:
+        locator:
+          enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,routes
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: INFO
