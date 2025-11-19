@@ -56,8 +56,12 @@ spec:
               value: "http://catalog-service:8080"
           
           livenessProbe:
+<<<<<<< Updated upstream
             httpGet:
               path: /health
+=======
+            tcpSocket:
+>>>>>>> Stashed changes
               port: 8085
             initialDelaySeconds: 60
             periodSeconds: 10
@@ -65,8 +69,12 @@ spec:
             timeoutSeconds: 5
           
           readinessProbe:
+<<<<<<< Updated upstream
             httpGet:
               path: /health
+=======
+            tcpSocket:
+>>>>>>> Stashed changes
               port: 8085
             initialDelaySeconds: 30
             periodSeconds: 5
