@@ -93,7 +93,7 @@ spec:
               value: "always"
 
           livenessProbe:
-            tcpSocket:
+            httpGet:
               path: /actuator/health/liveness
               port: 8081
             initialDelaySeconds: 120
@@ -102,7 +102,7 @@ spec:
             timeoutSeconds: 5
           
           readinessProbe:
-            tcpSocket:
+            httpGet:
               path: /actuator/health/readiness
               port: 8081
             initialDelaySeconds: 90
